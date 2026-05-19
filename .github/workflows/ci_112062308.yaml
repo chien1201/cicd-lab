@@ -1,4 +1,4 @@
-name: ci
+name: ci_112062308
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read         # 最小權限原則
+  checks: write          # 允許測試報告套件將結果寫入Github Actions頁面
 
 concurrency:             # 重複PUSH自動取消
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -24,7 +25,7 @@ jobs:
       - name: Checkout                 # 抓CODE
         uses: actions/checkout@v5     
 
-      - name: Setup Node.js            # 裝CODE
+      - name: Setup Node.js            # 裝環境
         uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
@@ -34,8 +35,28 @@ jobs:
         run: npm ci                    # 裝依賴
 
       # add your steps here, e.g. lint, test, build etc.
+      
+      # 1. Prettier check ("format:check": "prettier --check")
       - name: Format check
         run: npm run format:check
+
+      # 2. TypeScript typecheck ("typecheck": "tsc --noEmit")
+      - name: TypeScript typecheck
+        run: npm run typecheck      
+
+      # 3. Test ("test": "vitest run")
+      - name: Run Tests
+        run: npm run test -- --reporter=junit --outputFile=test-results-${{ matrix.node-version }}.xml
+
+      # 4. 將測試結果顯示於 GitHub actions 結果頁面 
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()                  # 不論測試成功或失敗都要執行
+        with:
+            name: Vitest Results (Node ${{ matrix.node-version }})
+            path: test-results-${{ matrix.node-version }}.xml
+            reporter: jest-junit
+
 
       - name: lint
         run: npm run lint

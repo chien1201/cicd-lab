@@ -2,43 +2,38 @@ name: ci
 
 on:
   push:
-    branches:            # 所有BRANCH都跑
+    branches:
       - '**'
-  pull_request:          # PR也跑
+  pull_request:
 
 permissions:
-  contents: read         # 最小權限原則
+  contents: read
 
-concurrency:             # 重複PUSH自動取消
+concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   ci:
     runs-on: ubuntu-latest
-    strategy:                       # 多版本並行驗
+    strategy:
       fail-fast: false
       matrix:
         node-version: ['22', '24']
     steps:
-      - name: Checkout                 # 抓CODE
-        uses: actions/checkout@v5     
+      - name: Checkout
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js            # 裝CODE
+      - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
       - name: Install dependencies
-        run: npm ci                    # 裝依賴
+        run: npm ci
 
       # add your steps here, e.g. lint, test, build etc.
-      - name: Format check
-        run: npm run format:check
-
-      - name: lint
-        run: npm run lint
 
       - name: Compute image tag
         id: meta
@@ -65,7 +60,7 @@ jobs:
         if: ${{ matrix.node-version == '24' }}
         run: docker build -t my-app:${{ steps.meta.outputs.image_tag }} .
 
-  cd:     # CI成功才會觸發CD
+  cd:
     if: ${{ startsWith(github.ref, 'refs/heads/release/') }}
     needs: ci
     uses: ./.github/workflows/cd.yaml

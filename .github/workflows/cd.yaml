@@ -1,8 +1,8 @@
 name: cd
 
 on:
-  workflow_dispatch:          # 可手動觸發
-  workflow_call:              # 可被ci.yml呼叫
+  workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
