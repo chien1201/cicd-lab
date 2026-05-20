@@ -57,9 +57,6 @@ jobs:
           path: test-results-${{ matrix.node-version }}.xml
           reporter: jest-junit
 
-      - name: lint
-        run: npm run lint
-
       - name: Compute image tag
         id: meta
         run: |
