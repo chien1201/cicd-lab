@@ -50,7 +50,7 @@ jobs:
 
       # 4. 將測試結果顯示於 GitHub actions 結果頁面
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1 # 開了write權限
+        uses: dorny/test-reporter@v1 # 開了write和allow權限
         if: always() # 不論測試成功或失敗都要執行
         with:
           name: Vitest Results (Node ${{ matrix.node-version }})
