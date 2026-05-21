@@ -48,14 +48,13 @@ jobs:
       - name: Run Tests
         run: npm run test -- --reporter=junit --outputFile=test-results-${{ matrix.node-version }}.xml
 
-      # 4. 將測試結果顯示於 GitHub actions 結果頁面
+      # 4. 將測試結果顯示於 GitHub actions 結果頁面 (改用 Summary 寫法)
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1 # 開了write和allow權限
+        uses: EnricoMi/publish-unit-test-result-action@v2 # 開了write和allow權限
         if: always() # 不論測試成功或失敗都要執行
         with:
-          name: Vitest Results (Node ${{ matrix.node-version }})
-          path: test-results-${{ matrix.node-version }}.xml
-          reporter: jest-junit
+          files: |
+            test-results-*.xml
 
       - name: Compute image tag
         id: meta
